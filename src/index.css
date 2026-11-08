@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Ubuntu", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Ubuntu", sans-serif;
+}
+
+/* Ensure all regular text defaults to medium weight */
+body, p, span, div, a, button, input, select, textarea, label {
+  font-weight: 500;
+}
+
+/* Headings and larger text default to bold */
+h1, h2, h3, h4, h5, h6,
+.text-lg, .text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl, .font-display,
+.font-bold, .font-extrabold, .font-black {
+  font-weight: 700 !important;
+}
+
+/* Bigger font text sizes and headings get italicized */
+h1, h2, h3, h4, h5, h6,
+.text-lg, .text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl, .font-display {
+  font-style: italic;
+}
+
+/* Base style adjustments for a flawless aesthetic */
+/* Base style adjustments for a flawless mobile & desktop aesthetic */
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Flickering approved legacy ticket animation */
+@keyframes pulse-flicker {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.98); background-color: rgba(249, 115, 22, 0.15); }
+}
+
+.animate-flicker {
+  animation: pulse-flicker 2s infinite ease-in-out;
+}
+
+/* Color-changing rotating neon light animation around the edge, emboldened at round completion */
+@keyframes neon-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes neon-glow {
+  0%, 100% {
+    filter: brightness(1.2) drop-shadow(0 0 4px rgba(251, 113, 133, 0.6));
+  }
+  50% {
+    filter: brightness(1.5) drop-shadow(0 0 10px rgba(56, 189, 248, 0.8));
+  }
+  /* Emboldened when it completes a round (loops around 95% - 100%) */
+  95% {
+    filter: brightness(2.8) drop-shadow(0 0 22px rgba(251, 113, 133, 1)) drop-shadow(0 0 32px rgba(244, 63, 94, 0.8));
+    transform: scale(1.02);
+  }
+}
+
+/* Shimmer animation for loading metric overlays */
+@keyframes shimmer-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer-slide 1.8s infinite linear;
+}
+
+.neon-light-border {
+  position: absolute;
+  inset: -150%;
+  background: conic-gradient(
+    from 0deg,
+    #ff0055,
+    #00ffcc,
+    #9900ff,
+    #ccff00,
+    #ff0055
+  );
+  animation: neon-spin 6s linear infinite;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.neon-card-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 3px;
+  background: transparent;
+  animation: neon-glow 6s ease-in-out infinite;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Custom CSS classes mapped to active theme variables */
+:root {
+  --theme-bg: #090d16;
+  --theme-card-bg: #111625;
+  --theme-border: #1e293b;
+  --theme-accent: #38bdf8;
+  --theme-accent-bg: #0ea5e9;
+  --theme-accent-hover: #0284c7;
+  --theme-text-main: #f1f5f9;
+  --theme-text-muted: #94a3b8;
+  --theme-accent-glow: rgba(14, 165, 233, 0.15);
+}
+
+.app-theme-bg {
+  background-color: var(--theme-bg) !important;
+}
+
+.app-theme-card {
+  background-color: var(--theme-card-bg) !important;
+  border-color: var(--theme-border) !important;
+}
+
+.app-theme-border {
+  border-color: var(--theme-border) !important;
+}
+
+.app-theme-text {
+  color: var(--theme-text-main) !important;
+}
+
+.app-theme-text-muted {
+  color: var(--theme-text-muted) !important;
+}
+
+.app-theme-accent-text {
+  color: var(--theme-accent) !important;
+}
+
+.app-theme-accent-bg {
+  background-color: var(--theme-accent-bg) !important;
+}
+
+.app-theme-accent-hover:hover {
+  background-color: var(--theme-accent-hover) !important;
+}
+
+.app-theme-accent-border {
+  border-color: var(--theme-accent-bg) !important;
+}
+
+.app-theme-accent-glow {
+  box-shadow: 0 0 15px var(--theme-accent-glow) !important;
+}
+
+/* Base override transitions for active themes */
+body, .min-h-screen, main, header, footer, div, section, tr, td, button, select, input {
+  transition: background-color 0.22s ease-in-out, border-color 0.22s ease-in-out, color 0.18s ease-in-out;
+}
+
+/* Smooth mobile touch scrolling without rigid scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile GPU & Compositor Optimization:
+ * Prevents mobile Chrome renderer process out-of-memory (OOM) crashes
+ * by replacing heavy Gaussian blur shader passes with lightweight opaque styles.
+ */
+@media (max-width: 640px) {
+  *, *::before, *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .neon-light-border {
+    animation: none !important;
+    display: none !important;
+  }
+  .neon-card-wrapper {
+    animation: none !important;
+  }
+}
+

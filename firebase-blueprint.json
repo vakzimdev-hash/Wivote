@@ -1,0 +1,363 @@
+{
+  "entities": {
+    "Workspace": {
+      "title": "Workspace",
+      "description": "SaaS Workspace representation with membership subscriptions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "subscriptionTier": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "trialStartDate": { "type": "string" },
+        "expiresAt": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "telephoneCode": { "type": "string" },
+        "giveawaySettings": { "type": "object" },
+        "captivePortalUrl": { "type": "string" },
+        "captivePortalUrls": { "type": "array" }
+      },
+      "required": ["id", "name", "subscriptionTier", "isActive", "ownerId"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User credentials, custom contact information, roles, and profile picture.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "cellNumber": { "type": "string" },
+        "role": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "name": { "type": "string" },
+        "profilePic": { "type": "string" },
+        "performanceScore": { "type": "number" }
+      },
+      "required": ["uid", "email", "role", "workspaceId", "name"]
+    },
+    "Voucher": {
+      "title": "Voucher",
+      "description": "Unused, assigned, or sold WiFi access tickets in the workspace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "plan": { "type": "string" },
+        "price": { "type": "number" },
+        "duration": { "type": "string" },
+        "location": { "type": "string" },
+        "status": { "type": "string" },
+        "assignedAgentId": { "type": "string" },
+        "assignedAgentName": { "type": "string" },
+        "assignedAt": { "type": "string" },
+        "soldAt": { "type": "string" },
+        "soldPrice": { "type": "number" },
+        "customerName": { "type": "string" },
+        "customerCell": { "type": "string" },
+        "archived": { "type": "boolean" },
+        "revokedAt": { "type": "string" },
+        "revokedBy": { "type": "string" },
+        "revokedReason": { "type": "string" },
+        "isFree": { "type": "boolean" },
+        "giftedAt": { "type": "string" },
+        "giftedByAgentId": { "type": "string" },
+        "giftedByAgentName": { "type": "string" }
+      },
+      "required": ["id", "code", "plan", "price", "duration", "location", "status"]
+    },
+    "VoucherRequest": {
+      "title": "VoucherRequest",
+      "description": "Requests filed by agents for admins to allocate top-up vouchers.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "agentId": { "type": "string" },
+        "agentName": { "type": "string" },
+        "plan": { "type": "string" },
+        "quantity": { "type": "number" },
+        "location": { "type": "string" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "agentId", "agentName", "plan", "quantity", "location", "status", "timestamp"]
+    },
+    "CashDrop": {
+      "title": "CashDrop",
+      "description": "EOD sales cash drops initiated by agents or requested by admins to reconcile the ledgers.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "agentId": { "type": "string" },
+        "agentName": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "requestedBy": { "type": "string" }
+      },
+      "required": ["id", "agentId", "agentName", "amount", "status", "timestamp", "requestedBy"]
+    },
+    "LegacyDevice": {
+      "title": "LegacyDevice",
+      "description": "Enrollment for non-wifi voucher devices requiring field-agent service.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "deviceNameModel": { "type": "string" },
+        "macAddress": { "type": "string" },
+        "monthlyPrice": { "type": "number" },
+        "fieldAgentId": { "type": "string" },
+        "fieldAgentName": { "type": "string" },
+        "isApproved": { "type": "boolean" },
+        "addedToInventory": { "type": "boolean" },
+        "status": { "type": "string" },
+        "enrolledAt": { "type": "string" },
+        "expiresAt": { "type": "string" }
+      },
+      "required": ["id", "customerName", "deviceNameModel", "macAddress", "monthlyPrice", "fieldAgentId", "fieldAgentName", "isApproved", "addedToInventory", "status"]
+    },
+    "SystemNotification": {
+      "title": "SystemNotification",
+      "description": "Motivational messages or notices sent by workspace managers to agents.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "message": { "type": "string" },
+        "senderName": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "location": { "type": "string" },
+        "isBroadcast": { "type": "boolean" },
+        "targetAudience": { "type": "string" },
+        "targetAgentIds": { "type": "array" },
+        "targetAgentNames": { "type": "array" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["id", "message", "senderName", "timestamp"]
+    },
+    "FeedbackMessage": {
+      "title": "FeedbackMessage",
+      "description": "Inquiries or queries filed by field agents directly to admins with reply support.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "agentId": { "type": "string" },
+        "agentName": { "type": "string" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "reply": { "type": "string" },
+        "voucherCode": { "type": "string" },
+        "voucherId": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "agentId", "agentName", "message", "timestamp"]
+    },
+    "AuditLogEntry": {
+      "title": "AuditLogEntry",
+      "description": "Security and administrative audit trail across workspaces, credential changes, role modifications, and device enrollment.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "category": { "type": "string" },
+        "action": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "actorId": { "type": "string" },
+        "actorName": { "type": "string" },
+        "actorRole": { "type": "string" },
+        "targetId": { "type": "string" },
+        "targetName": { "type": "string" },
+        "targetEmail": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "workspaceName": { "type": "string" },
+        "metadata": { "type": "object" }
+      },
+      "required": ["id", "timestamp", "category", "action", "title", "description"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Customer record with auto-generated Customer Number (CN:01+) and universal purchase history for the Genius Loyalty Program.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "customerNumber": { "type": "string" },
+        "name": { "type": "string" },
+        "cellNumber": { "type": "string" },
+        "totalPurchases": { "type": "number" },
+        "totalSpend": { "type": "number" },
+        "totalSaved": { "type": "number" },
+        "consecutivePurchases": { "type": "array" },
+        "lastPurchaseDate": { "type": "number" },
+        "lastAgentName": { "type": "string" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "workspaceId", "customerNumber", "name", "cellNumber", "totalPurchases"]
+    },
+    "InvestorStake": {
+      "title": "InvestorStake",
+      "description": "Investor equity position, contribution, valuation, and dividend records in a workspace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "cellNumber": { "type": "string" },
+        "investorType": { "type": "string" },
+        "contributionAmount": { "type": "number" },
+        "sharesCount": { "type": "number" },
+        "equityPercentage": { "type": "number" },
+        "currentMonetaryValue": { "type": "number" },
+        "dateJoined": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "workspaceId", "name", "email", "contributionAmount", "sharesCount", "equityPercentage"]
+    },
+    "ShareholdingGovernance": {
+      "title": "ShareholdingGovernance",
+      "description": "Corporate governance system, investor tone, hurdle rate, and profit distribution rules for a workspace.",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "framework": { "type": "string" },
+        "investorTone": { "type": "string" },
+        "companyValuation": { "type": "number" },
+        "totalIssuedShares": { "type": "number" },
+        "sharePrice": { "type": "number" },
+        "retainedEarningsRatio": { "type": "number" },
+        "dividendPayoutRatio": { "type": "number" }
+      },
+      "required": ["workspaceId", "framework", "investorTone", "companyValuation", "totalIssuedShares", "sharePrice"]
+    },
+    "LedgerTransaction": {
+      "title": "LedgerTransaction",
+      "description": "Double-entry corporate cash book transaction tracking revenues, opex, capex, and dividends.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "type": { "type": "string" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string" },
+        "balanceAfter": { "type": "number" }
+      },
+      "required": ["id", "workspaceId", "type", "description", "amount", "date", "balanceAfter"]
+    },
+    "ShareDisposalRequest": {
+      "title": "ShareDisposalRequest",
+      "description": "Investor share disposal or company buyback request with valuation recommendations.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "workspaceId": { "type": "string" },
+        "investorId": { "type": "string" },
+        "sharesToDispose": { "type": "number" },
+        "suggestedPricePerShare": { "type": "number" },
+        "totalOfferAmount": { "type": "number" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "workspaceId", "investorId", "sharesToDispose", "suggestedPricePerShare", "totalOfferAmount", "status"]
+    },
+    "LeaderboardSummary": {
+      "title": "LeaderboardSummary",
+      "description": "Real-time synced performance and sales metrics for workspace agents across all dashboards.",
+      "type": "object",
+      "properties": {
+        "workspaceId": { "type": "string" },
+        "scores": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["workspaceId", "scores", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/workspaces/{workspaceId}/leaderboard/{docId}": {
+      "schema": "LeaderboardSummary",
+      "description": "Real-time synced agent leaderboard cache across all dashboards."
+    },
+    "/workspaces/{workspaceId}/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customer registry and loyalty tracking per workspace."
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Global customers registry with workspace isolation."
+    },
+    "/audit_logs/{auditLogId}": {
+      "schema": "AuditLogEntry",
+      "description": "Centralized audit log collection of administrative actions across all workspaces."
+    },
+    "/workspaces/{workspaceId}/audit_logs/{auditLogId}": {
+      "schema": "AuditLogEntry",
+      "description": "Tenant-specific subcollection audit trail."
+    },
+    "/workspaces/{workspaceId}": {
+      "schema": "Workspace",
+      "description": "Collection of business workspaces."
+    },
+    "/workspaces/{workspaceId}/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Profiles belonging to a workspace."
+    },
+    "/workspaces/{workspaceId}/vouchers/{voucherId}": {
+      "schema": "Voucher",
+      "description": "Voucher inventory of a workspace."
+    },
+    "/workspaces/{workspaceId}/vouchers_archive/{voucherId}": {
+      "schema": "Voucher",
+      "description": "Cold storage archive for sold vouchers older than 2 months."
+    },
+    "/vouchers_archive/{voucherId}": {
+      "schema": "Voucher",
+      "description": "Global cold storage archive collection for legacy vouchers."
+    },
+    "/workspaces/{workspaceId}/requests/{requestId}": {
+      "schema": "VoucherRequest",
+      "description": "Agent top-up requests in a workspace."
+    },
+    "/workspaces/{workspaceId}/cash_drops/{cashDropId}": {
+      "schema": "CashDrop",
+      "description": "Cash drop ledger entries of a workspace."
+    },
+    "/workspaces/{workspaceId}/legacy_devices/{deviceId}": {
+      "schema": "LegacyDevice",
+      "description": "Enrolled legacy tickets of a workspace."
+    },
+    "/workspaces/{workspaceId}/notifications/{notificationId}": {
+      "schema": "SystemNotification",
+      "description": "Global notices or announcements."
+    },
+    "/workspaces/{workspaceId}/feedback/{feedbackId}": {
+      "schema": "FeedbackMessage",
+      "description": "Support queries and administrative replies."
+    },
+    "/workspaces/{workspaceId}/investors/{investorId}": {
+      "schema": "InvestorStake",
+      "description": "Investor stake and cap table records for a workspace."
+    },
+    "/workspaces/{workspaceId}/shareholding_governance/{govId}": {
+      "schema": "ShareholdingGovernance",
+      "description": "Corporate governance framework and settings for a workspace."
+    },
+    "/workspaces/{workspaceId}/ledger/{ledgerId}": {
+      "schema": "LedgerTransaction",
+      "description": "Corporate cash book ledger entries for a workspace."
+    },
+    "/workspaces/{workspaceId}/share_disposals/{disposalId}": {
+      "schema": "ShareDisposalRequest",
+      "description": "Secondary share disposal and buyback requests."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Root user collection containing all tenant profiles and app owner."
+    },
+    "/archived_workspaces/{workspaceId}": {
+      "schema": "Workspace",
+      "description": "Archived snapshot of deleted workspaces including subcollection dumps."
+    }
+  }
+}

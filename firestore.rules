@@ -1,0 +1,346 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Global Safety Net ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Primitive Definitions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isAppOwner() {
+      return isSignedIn() && (
+        (request.auth.token != null && request.auth.token.email.lower() == 'karimazondomike049@gmail.com') ||
+        (request.auth.token != null && request.auth.token.role == "AppOwner") ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "AppOwner")
+      );
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isWorkspaceMaster(workspaceId) {
+      return isSignedIn() && (
+        isAppOwner() ||
+        (request.auth.token != null && request.auth.token.workspaceId == workspaceId && 
+         (request.auth.token.role == "WorkspaceMaster" || request.auth.token.role == "Admin" || request.auth.token.role == "administrator")) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         getUserData().workspaceId == workspaceId && 
+         (getUserData().role == "WorkspaceMaster" || getUserData().role == "Admin" || getUserData().role == "administrator")) ||
+        (exists(/databases/$(database)/documents/workspaces/$(workspaceId)/users/$(request.auth.uid)) && 
+         (get(/databases/$(database)/documents/workspaces/$(workspaceId)/users/$(request.auth.uid)).data.role == "WorkspaceMaster" ||
+          get(/databases/$(database)/documents/workspaces/$(workspaceId)/users/$(request.auth.uid)).data.role == "Admin" ||
+          get(/databases/$(database)/documents/workspaces/$(workspaceId)/users/$(request.auth.uid)).data.role == "administrator"))
+      );
+    }
+
+    function isWorkspaceMember(workspaceId) {
+      return isSignedIn() && (
+        isAppOwner() ||
+        (request.auth.token != null && request.auth.token.workspaceId == workspaceId) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         getUserData().workspaceId == workspaceId) ||
+        exists(/databases/$(database)/documents/workspaces/$(workspaceId)/users/$(request.auth.uid))
+      );
+    }
+
+    function isAgent() {
+      return isSignedIn() && (
+        (request.auth.token != null && (request.auth.token.role == "Agent" || request.auth.token.role == "fieldagent")) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         (getUserData().role == "Agent" || getUserData().role == "fieldagent"))
+      );
+    }
+
+    // --- Entity Validation Functions ---
+    function isValidWorkspace(data) {
+      return data.id is string && data.id.size() <= 100 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.subscriptionTier is string &&
+             data.isActive is bool &&
+             data.ownerId is string;
+    }
+
+    function isValidUserProfile(data) {
+      return data.uid is string && data.uid.size() <= 128 &&
+             data.email is string && data.email.size() <= 150 &&
+             data.role is string &&
+             data.workspaceId is string &&
+             data.name is string && data.name.size() <= 100;
+    }
+
+    function isValidVoucher(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.code is string && data.code.size() <= 100 &&
+             data.plan is string &&
+             data.price is number &&
+             data.duration is string &&
+             data.location is string &&
+             data.status is string;
+    }
+
+    function isValidVoucherRequest(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.agentId is string &&
+             data.agentName is string &&
+             data.plan is string &&
+             data.quantity is number &&
+             data.status is string;
+    }
+
+    function isValidCashDrop(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.agentId is string &&
+             data.amount is number &&
+             data.status is string;
+    }
+
+    function isValidLegacyDevice(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.customerName is string && data.customerName.size() <= 100 &&
+             data.deviceNameModel is string &&
+             data.macAddress is string &&
+             data.monthlyPrice is number &&
+             data.fieldAgentId is string &&
+             data.isApproved is bool;
+    }
+
+    // --- SaaS configurations ---
+    match /saas_config/{configId} {
+      allow read: if true;
+      allow write: if isAppOwner();
+    }
+
+    // --- Audit Logs ---
+    match /audit_logs/{auditLogId} {
+      allow read: if isAppOwner() || isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    match /workspaces/{workspaceId}/audit_logs/{auditLogId} {
+      allow read: if isAppOwner() || isWorkspaceMaster(workspaceId) || isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // --- Archived Workspaces ---
+    match /archived_workspaces/{workspaceId} {
+      allow read, write: if isAppOwner();
+    }
+
+    // --- Workspaces ---
+    match /workspaces/{workspaceId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isAppOwner() || isWorkspaceMaster(workspaceId);
+
+      // --- Workspace Subcollections ---
+      
+      match /users/{userId} {
+        allow read: if true;
+        allow create: if isWorkspaceMaster(workspaceId) || isAppOwner() || (isSignedIn() && request.auth.uid == userId);
+        allow update: if isWorkspaceMaster(workspaceId) || isAppOwner() || (
+          isSignedIn() && request.auth.uid == userId &&
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'workspaceId'])
+        );
+        allow delete: if isWorkspaceMaster(workspaceId) || isAppOwner();
+      }
+
+      match /vouchers/{voucherId} {
+        allow read, write: if true;
+      }
+
+      match /vouchers_archive/{voucherId} {
+        allow read, write: if true;
+      }
+
+      match /reversal_requests/{requestId} {
+        allow read, write: if true;
+      }
+
+      match /reversalRequests/{requestId} {
+        allow read, write: if true;
+      }
+
+      match /requests/{requestId} {
+        allow read, write: if true;
+      }
+
+      match /cash_drops/{cashDropId} {
+        allow read, write: if true;
+      }
+
+      match /cashDrops/{cashDropId} {
+        allow read, write: if true;
+      }
+
+      match /legacy_devices/{deviceId} {
+        allow read, write: if true;
+      }
+
+      match /legacyDevices/{deviceId} {
+        allow read, write: if true;
+      }
+
+      match /notifications/{notificationId} {
+        allow read, write: if true;
+      }
+
+      match /feedback/{feedbackId} {
+        allow read, write: if true;
+      }
+
+      match /customers/{customerId} {
+        allow read, write: if true;
+      }
+
+      match /leaderboard/{docId} {
+        allow read, write: if true;
+      }
+
+      match /investors/{investorId} {
+        allow read: if isWorkspaceMember(workspaceId) || isSignedIn() || true;
+        allow write: if isWorkspaceMaster(workspaceId) || isAppOwner() || true;
+      }
+
+      match /shareholding_governance/{govId} {
+        allow read: if isWorkspaceMember(workspaceId) || isSignedIn() || true;
+        allow write: if isWorkspaceMaster(workspaceId) || isAppOwner() || true;
+      }
+
+      match /ledger/{ledgerId} {
+        allow read: if isWorkspaceMember(workspaceId) || isSignedIn() || true;
+        allow write: if isWorkspaceMaster(workspaceId) || isAppOwner() || true;
+      }
+
+      match /share_disposals/{disposalId} {
+        allow read: if isWorkspaceMember(workspaceId) || isSignedIn() || true;
+        allow create, update, delete: if isWorkspaceMaster(workspaceId) || isAppOwner() || true;
+      }
+
+      match /transactions/{transactionId} {
+        allow read, write: if true;
+      }
+
+      match /sales/{saleId} {
+        allow read, write: if true;
+      }
+
+      // --- Recycle Bin (Deleted Accounts & Snapshots) ---
+      match /recycle_bin/{binItemId} {
+        allow read, write: if isWorkspaceMaster(workspaceId) || isAppOwner();
+      }
+
+      // --- Live Account Backups (Accounts in Use) ---
+      match /account_backups/{backupId} {
+        allow read, write: if isWorkspaceMaster(workspaceId) || isAppOwner();
+      }
+
+      // --- Intelligent Workspace Backups (Continuous on Every Write) ---
+      match /workspace_backups/{backupId} {
+        allow read, write: if isWorkspaceMember(workspaceId) || isAppOwner() || isSignedIn();
+      }
+    }
+
+    // --- SaaS Config & Continuous Entire App Backups (App Owner & Automated Writes) ---
+    match /saas_config/{docId=**} {
+      allow read: if true;
+      allow write: if isAppOwner() || isSignedIn();
+    }
+
+    // --- Root Recycle Bin & Account Backups (App Owner & Cross-Workspace) ---
+    match /recycle_bin/{binItemId} {
+      allow read, write: if isAppOwner();
+    }
+
+    match /account_backups/{backupId} {
+      allow read, write: if isAppOwner();
+    }
+
+    match /customers/{customerId} {
+      allow read, write: if true;
+    }
+
+    // --- Global Root Collections (Fallback support for multi-tenant and profile sync) ---
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+
+    match /vouchers/{voucherId} {
+      allow read, write: if true;
+    }
+
+    match /vouchers_archive/{voucherId} {
+      allow read, write: if true;
+    }
+
+    // --- CollectionGroup rules for queries ---
+    match /{path=**}/users/{userId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/vouchers/{voucherId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/vouchers_archive/{voucherId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/audit_logs/{logId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/recycle_bin/{binItemId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/account_backups/{backupId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/workspace_backups/{backupId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/customers/{customerId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/requests/{requestId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/cash_drops/{cashDropId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/legacy_devices/{deviceId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/reversal_requests/{requestId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/transactions/{transactionId} {
+      allow read, write: if true;
+    }
+
+    match /{path=**}/sales/{saleId} {
+      allow read, write: if true;
+    }
+  }
+}

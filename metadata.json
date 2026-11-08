@@ -1,0 +1,8 @@
+{
+  "name": "WiVoTe",
+  "description": "A secure WiFi Voucher Terminal (sales, access, voucher management, legacy device enrollment, and multi-dashboard admin-agent workflow).",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
